@@ -1,0 +1,117 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+}
+
+.wrapper {
+    background: #1a1a1a;
+    border-radius: 10px;
+    padding: 40px;
+    width: 350px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(255, 0, 0, 0.4);
+    transition: 0.3s ease;
+}
+
+.wrapper:hover {
+    box-shadow: 0 4px 30px rgba(255, 0, 0, 0.8);
+}
+
+h2 {
+    color: #ff1a1a;
+    margin-bottom: 30px;
+    font-size: 24px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: 0.3s ease;
+}
+
+.input-field {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.input-field input {
+    width: 100%;
+    padding: 10px 15px 10px 40px;
+    background: #0f0f0f;
+    border: none;
+    border-radius: 25px;
+    color: #fff;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.input-field input:focus {
+    background: #1a1a1a;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.6);
+}
+
+.input-field i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ff1a1a;
+    transition: 0.3s ease;
+}
+
+.input-field input:focus + i {
+    color: #ff4d4d;
+}
+
+.forgot {
+    display: inline-block;
+    color: #ff4d4d;
+    margin-bottom: 20px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+.forgot:hover {
+    color: #ff1a1a;
+}
+
+button.login {
+    width: 100%;
+    padding: 10px;
+    background: #ff1a1a;
+    border: none;
+    border-radius: 25px;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+button.login:hover {
+    background: #ff4d4d;
+}
+
+.sign-up {
+    color: #ff1a1a;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.sign-up:hover {
+    color: #ff4d4d;
+}
+
+p {
+    color: #fff;
+    margin-top: 20px;
+    font-size: 14px;
+}
