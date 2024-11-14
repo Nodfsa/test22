@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoinGame</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .balance {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>CoinGame 💰</h1>
+    <div class="balance" id="balance">Ваш баланс: 0 коинов</div>
+    <button onclick="claimCoins()">Получить бонус</button>
+    <button onclick="buyItem('drink', 5)">Купить 🥤 Питье (5 коинов)</button>
+    <button onclick="buyItem('pizza', 15)">Купить 🍕 Пицца (15 коинов)</button>
+    <button onclick="buyItem('game', 25)">Купить 🎮 Игра (25 коинов)</button>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        // Инициализация Web App
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Раскрыть веб-приложение
+
+        // Начальные данные
+        let balance = 0;
+
+        // Функция для обновления баланса на экране
+        function updateBalance() {
+            document.getElementById('balance').textContent = `Ваш баланс: ${balance} коинов`;
+        }
+
+        // Получить бонус
+        function claimCoins() {
+            balance += 10;
+            updateBalance();
+            tg.sendData(JSON.stringify({action: 'claim', amount: 10}));
+        }
+
+        // Покупка предмета
+        function buyItem(item, cost) {
+            if (balance >= cost) {
+                balance -= cost;
+                updateBalance();
+                tg.sendData(JSON.stringify({action: 'buy', item: item, cost: cost}));
+                alert(`Вы купили ${item} за ${cost} коинов!`);
+            } else {
+                alert("Недостаточно коинов!");
+            }
+        }
+
+        // Получаем начальный баланс от бота (можно расширить эту часть)
+        tg.onEvent('mainButtonClicked', () => {
+            // Ваш код для обработки данных с бота
+        });
+    </script>
+</body>
+</html>
