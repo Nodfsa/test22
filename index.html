@@ -14,21 +14,25 @@
             height: 100vh;
             margin: 0;
         }
-        .balance {
+        .balance, .level, .quests, .timer {
             font-size: 24px;
-            margin: 20px 0;
+            margin: 10px 0;
         }
         button {
             padding: 10px 20px;
             font-size: 18px;
-            margin: 10px;
+            margin: 5px;
         }
     </style>
 </head>
 <body>
     <h1>CoinGame 💰</h1>
+    <div class="level" id="level">Уровень: 1</div>
     <div class="balance" id="balance">Ваш баланс: 0 коинов</div>
-    <button onclick="claimCoins()">Получить бонус</button>
+    <div class="quests" id="quests">Квест: Накопите 50 коинов</div>
+    <div class="timer" id="timer">До следующего бонуса: <span id="bonus-timer">00:00:00</span></div>
+    <button onclick="claimDailyBonus()">Получить ежедневный бонус</button>
+    <button onclick="claimRandomBonus()">Получить случайный бонус</button>
     <button onclick="buyItem('drink', 5)">Купить 🥤 Питье (5 коинов)</button>
     <button onclick="buyItem('pizza', 15)">Купить 🍕 Пицца (15 коинов)</button>
     <button onclick="buyItem('game', 25)">Купить 🎮 Игра (25 коинов)</button>
@@ -39,37 +43,105 @@
         const tg = window.Telegram.WebApp;
         tg.expand(); // Раскрыть веб-приложение
 
-        // Начальные данные
+        // Переменные состояния
         let balance = 0;
+        let level = 1;
+        let quests = [
+            { description: "Накопите 50 коинов", target: 50, completed: false },
+            { description: "Накопите 100 коинов", target: 100, completed: false },
+            { description: "Накопите 200 коинов", target: 200, completed: false }
+        ];
+        let dailyBonusClaimed = false;
+        let dailyBonusTime = 24 * 60 * 60 * 1000; // 24 часа в миллисекундах
+        let lastBonusClaimTime = null;
 
-        // Функция для обновления баланса на экране
-        function updateBalance() {
+        // Функция для обновления интерфейса
+        function updateInterface() {
             document.getElementById('balance').textContent = `Ваш баланс: ${balance} коинов`;
+            document.getElementById('level').textContent = `Уровень: ${level}`;
+            let activeQuest = quests.find(q => !q.completed);
+            document.getElementById('quests').textContent = `Квест: ${activeQuest ? activeQuest.description : 'Все квесты завершены!'}`;
+            updateBonusTimer();
         }
 
-        // Получить бонус
-        function claimCoins() {
-            balance += 10;
-            updateBalance();
-            tg.sendData(JSON.stringify({action: 'claim', amount: 10}));
+        // Функция получения ежедневного бонуса
+        function claimDailyBonus() {
+            if (!dailyBonusClaimed || (new Date() - lastBonusClaimTime) > dailyBonusTime) {
+                const bonusAmount = 20 + level * 5; // Ежедневный бонус зависит от уровня
+                balance += bonusAmount;
+                lastBonusClaimTime = new Date();
+                dailyBonusClaimed = true;
+                tg.sendData(JSON.stringify({ action: 'daily_bonus', amount: bonusAmount }));
+                checkQuests();
+                updateInterface();
+                alert(`Вы получили ежедневный бонус: ${bonusAmount} коинов!`);
+            } else {
+                alert("Вы уже получили ежедневный бонус. Попробуйте позже.");
+            }
+        }
+
+        // Функция получения случайного бонуса
+        function claimRandomBonus() {
+            const bonusAmount = Math.floor(Math.random() * 10) + 5;
+            balance += bonusAmount;
+            tg.sendData(JSON.stringify({ action: 'random_bonus', amount: bonusAmount }));
+            checkQuests();
+            updateInterface();
+            alert(`Вы получили случайный бонус: ${bonusAmount} коинов!`);
         }
 
         // Покупка предмета
         function buyItem(item, cost) {
             if (balance >= cost) {
                 balance -= cost;
-                updateBalance();
-                tg.sendData(JSON.stringify({action: 'buy', item: item, cost: cost}));
+                tg.sendData(JSON.stringify({ action: 'buy', item: item, cost: cost }));
                 alert(`Вы купили ${item} за ${cost} коинов!`);
+                checkQuests();
+                updateInterface();
             } else {
                 alert("Недостаточно коинов!");
             }
         }
 
-        // Получаем начальный баланс от бота (можно расширить эту часть)
-        tg.onEvent('mainButtonClicked', () => {
-            // Ваш код для обработки данных с бота
-        });
+        // Проверка и выполнение квестов
+        function checkQuests() {
+            quests.forEach(quest => {
+                if (!quest.completed && balance >= quest.target) {
+                    quest.completed = true;
+                    alert(`Квест завершен: ${quest.description}!`);
+                    levelUp();
+                }
+            });
+        }
+
+        // Повышение уровня
+        function levelUp() {
+            level += 1;
+            tg.sendData(JSON.stringify({ action: 'level_up', level: level }));
+            alert(`Поздравляем! Вы достигли уровня ${level}!`);
+            updateInterface();
+        }
+
+        // Таймер для ежедневного бонуса
+        function updateBonusTimer() {
+            if (lastBonusClaimTime) {
+                const timePassed = new Date() - lastBonusClaimTime;
+                const timeLeft = dailyBonusTime - timePassed;
+                if (timeLeft > 0) {
+                    const hours = String(Math.floor((timeLeft / (1000 * 60 * 60)) % 24)).padStart(2, '0');
+                    const minutes = String(Math.floor((timeLeft / (1000 * 60)) % 60)).padStart(2, '0');
+                    const seconds = String(Math.floor((timeLeft / 1000) % 60)).padStart(2, '0');
+                    document.getElementById('bonus-timer').textContent = `${hours}:${minutes}:${seconds}`;
+                } else {
+                    dailyBonusClaimed = false;
+                    document.getElementById('bonus-timer').textContent = "00:00:00";
+                }
+            }
+        }
+
+        // Обновление интерфейса при загрузке
+        updateInterface();
+        setInterval(updateBonusTimer, 1000); // Обновление таймера каждую секунду
     </script>
 </body>
 </html>
