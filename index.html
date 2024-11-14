@@ -158,6 +158,10 @@
     <script>
         let level = 1;
         let balance = 0;
+        let items = {
+            sword: 0,
+            shield: 0
+        };
 
         function showScreen(screenId) {
             const screens = document.querySelectorAll('.screen');
@@ -183,6 +187,7 @@
         function buyItem(item, cost) {
             if (balance >= cost) {
                 balance -= cost;
+                items[item] += 1;
                 updateBalance();
                 updateStatus(`You bought a ${item}!`);
             } else {
