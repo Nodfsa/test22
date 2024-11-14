@@ -3,88 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CoinGame Ultimate</title>
+    <title>Ultimate Adventure</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             height: 100vh;
-            background-color: #1a1a2e;
+            background-color: #2a2a3b;
             color: #f0f0f0;
             margin: 0;
+            overflow: hidden;
         }
 
         .container {
             width: 90%;
-            max-width: 400px;
-            text-align: center;
-            background: rgba(255, 255, 255, 0.1);
+            max-width: 500px;
             padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
             border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            text-align: center;
             position: relative;
-            animation: fadeIn 1s ease-in-out;
+            animation: fadeIn 1s ease;
+            transition: all 0.5s ease-in-out;
         }
 
-        h1 {
-            font-size: 2em;
-            margin: 0;
-            color: #ffd700;
-            text-shadow: 0px 0px 10px #ffd700;
+        .screen {
+            display: none;
         }
 
-        .level, .balance, .quests, .timer {
-            font-size: 1.2em;
-            margin: 15px 0;
+        .screen.active {
+            display: block;
         }
 
-        .buttons {
+        .header, .footer {
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 10px;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.2em;
         }
 
-        button {
-            flex: 1 1 45%;
+        .level {
+            font-size: 1.5em;
+            color: #ffd700;
+        }
+
+        .screen-content {
+            margin-top: 20px;
+            font-size: 1.1em;
+            color: #ffeb3b;
+        }
+
+        .button-group {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .button {
+            flex: 1;
             padding: 10px;
-            font-size: 1em;
-            color: #fff;
             background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #fff;
             border: none;
             border-radius: 5px;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
             cursor: pointer;
+            transition: transform 0.2s;
         }
 
-        button:hover {
+        .button:hover {
             transform: scale(1.05);
-            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .swipe-container {
-            margin-top: 20px;
-            overflow-x: hidden;
-            white-space: nowrap;
-            position: relative;
-            width: 100%;
-        }
-
-        .swipe-item {
-            display: inline-block;
-            width: 100%;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            margin-right: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            transition: transform 0.5s ease-in-out;
-            font-size: 1.1em;
         }
 
         /* Animation */
@@ -92,128 +81,129 @@
             0% { opacity: 0; transform: scale(0.9); }
             100% { opacity: 1; transform: scale(1); }
         }
+
+        .slide-out {
+            animation: slideOut 0.5s forwards;
+        }
+
+        .slide-in {
+            animation: slideIn 0.5s forwards;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(-100%); opacity: 0; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>CoinGame Ultimate 💰</h1>
-        <div class="level" id="level">Уровень: 1</div>
-        <div class="balance" id="balance">Ваш баланс: 0 коинов</div>
-        <div class="quests" id="quests">Квест: Накопите 50 коинов</div>
-        <div class="timer" id="timer">До следующего бонуса: <span id="bonus-timer">00:00:00</span></div>
-
-        <div class="buttons">
-            <button onclick="claimDailyBonus()">Ежедневный бонус</button>
-            <button onclick="claimRandomBonus()">Случайный бонус</button>
-            <button onclick="buyItem('drink', 5)">Купить 🥤</button>
-            <button onclick="buyItem('pizza', 15)">Купить 🍕</button>
-            <button onclick="buyItem('game', 25)">Купить 🎮</button>
+        <!-- Header -->
+        <div class="header">
+            <span class="level" id="level">Level: 1</span>
+            <span class="balance" id="balance">Coins: 0</span>
         </div>
 
-        <div class="swipe-container" id="swipe-container">
-            <div class="swipe-item">Совет: Соберите 100 коинов для уровня 2!</div>
-            <div class="swipe-item">Задание: Получите случайный бонус 5 раз.</div>
-            <div class="swipe-item">Напоминание: Ежедневный бонус доступен 1 раз в день.</div>
+        <!-- Screens -->
+        <div id="mainMenu" class="screen active screen-content">
+            <h1>Main Menu</h1>
+            <p>Welcome to the Ultimate Adventure! Choose your path and conquer the quests.</p>
+            <div class="button-group">
+                <button class="button" onclick="showScreen('adventure')">Start Adventure</button>
+                <button class="button" onclick="showScreen('shop')">Visit Shop</button>
+                <button class="button" onclick="showScreen('quests')">Daily Quests</button>
+            </div>
+        </div>
+
+        <div id="adventure" class="screen screen-content">
+            <h1>Adventure</h1>
+            <p>Fight enemies, collect rewards, and gain experience to level up!</p>
+            <div class="button-group">
+                <button class="button" onclick="earnRewards()">Fight!</button>
+                <button class="button" onclick="levelUp()">Level Up</button>
+                <button class="button" onclick="showScreen('mainMenu')">Back to Menu</button>
+            </div>
+        </div>
+
+        <div id="shop" class="screen screen-content">
+            <h1>Shop</h1>
+            <p>Use your coins to buy powerful items and upgrades.</p>
+            <div class="button-group">
+                <button class="button" onclick="buyItem('sword', 10)">Sword - 10 coins</button>
+                <button class="button" onclick="buyItem('shield', 15)">Shield - 15 coins</button>
+                <button class="button" onclick="showScreen('mainMenu')">Back to Menu</button>
+            </div>
+        </div>
+
+        <div id="quests" class="screen screen-content">
+            <h1>Daily Quests</h1>
+            <p>Complete daily quests to earn extra rewards!</p>
+            <div class="button-group">
+                <button class="button" onclick="completeQuest()">Complete Quest</button>
+                <button class="button" onclick="showScreen('mainMenu')">Back to Menu</button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <span id="status">Status: Ready</span>
         </div>
     </div>
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand(); // Раскрыть веб-приложение
-
-        // Переменные состояния
-        let balance = 0;
         let level = 1;
-        let quests = [
-            { description: "Накопите 50 коинов", target: 50, completed: false },
-            { description: "Накопите 100 коинов", target: 100, completed: false },
-            { description: "Накопите 200 коинов", target: 200, completed: false }
-        ];
-        let dailyBonusClaimed = false;
-        let dailyBonusTime = 24 * 60 * 60 * 1000; // 24 часа
-        let lastBonusClaimTime = null;
+        let balance = 0;
 
-        // Обновление интерфейса
-        function updateInterface() {
-            document.getElementById('balance').textContent = `Ваш баланс: ${balance} коинов`;
-            document.getElementById('level').textContent = `Уровень: ${level}`;
-            let activeQuest = quests.find(q => !q.completed);
-            document.getElementById('quests').textContent = `Квест: ${activeQuest ? activeQuest.description : 'Все квесты завершены!'}`;
-            updateBonusTimer();
+        function showScreen(screenId) {
+            const screens = document.querySelectorAll('.screen');
+            screens.forEach(screen => screen.classList.remove('active', 'slide-out', 'slide-in'));
+
+            const activeScreen = document.getElementById(screenId);
+            activeScreen.classList.add('active', 'slide-in');
         }
 
-        function claimDailyBonus() {
-            if (!dailyBonusClaimed || (new Date() - lastBonusClaimTime) > dailyBonusTime) {
-                const bonusAmount = 20 + level * 5;
-                balance += bonusAmount;
-                lastBonusClaimTime = new Date();
-                dailyBonusClaimed = true;
-                tg.sendData(JSON.stringify({ action: 'daily_bonus', amount: bonusAmount }));
-                checkQuests();
-                updateInterface();
-                alert(`Ежедневный бонус: ${bonusAmount} коинов!`);
-            } else {
-                alert("Ежедневный бонус уже получен.");
-            }
+        function earnRewards() {
+            const reward = Math.floor(Math.random() * 5) + 5;
+            balance += reward;
+            updateBalance();
+            updateStatus(`You earned ${reward} coins!`);
         }
 
-        function claimRandomBonus() {
-            const bonusAmount = Math.floor(Math.random() * 10) + 5;
-            balance += bonusAmount;
-            tg.sendData(JSON.stringify({ action: 'random_bonus', amount: bonusAmount }));
-            checkQuests();
-            updateInterface();
-            alert(`Случайный бонус: ${bonusAmount} коинов!`);
+        function levelUp() {
+            level += 1;
+            document.getElementById('level').textContent = `Level: ${level}`;
+            updateStatus(`You leveled up to Level ${level}!`);
         }
 
         function buyItem(item, cost) {
             if (balance >= cost) {
                 balance -= cost;
-                tg.sendData(JSON.stringify({ action: 'buy', item: item, cost: cost }));
-                alert(`Покупка: ${item} за ${cost} коинов!`);
-                checkQuests();
-                updateInterface();
+                updateBalance();
+                updateStatus(`You bought a ${item}!`);
             } else {
-                alert("Недостаточно коинов!");
+                updateStatus(`Not enough coins to buy ${item}.`);
             }
         }
 
-        function checkQuests() {
-            quests.forEach(quest => {
-                if (!quest.completed && balance >= quest.target) {
-                    quest.completed = true;
-                    alert(`Квест выполнен: ${quest.description}!`);
-                    levelUp();
-                }
-            });
+        function completeQuest() {
+            const questReward = 20;
+            balance += questReward;
+            updateBalance();
+            updateStatus(`Quest completed! You earned ${questReward} coins.`);
         }
 
-        function levelUp() {
-            level += 1;
-            tg.sendData(JSON.stringify({ action: 'level_up', level: level }));
-            alert(`Уровень ${level} достигнут!`);
-            updateInterface();
+        function updateBalance() {
+            document.getElementById('balance').textContent = `Coins: ${balance}`;
         }
 
-        function updateBonusTimer() {
-            if (lastBonusClaimTime) {
-                const timePassed = new Date() - lastBonusClaimTime;
-                const timeLeft = dailyBonusTime - timePassed;
-                if (timeLeft > 0) {
-                    const hours = String(Math.floor((timeLeft / (1000 * 60 * 60)) % 24)).padStart(2, '0');
-                    const minutes = String(Math.floor((timeLeft / (1000 * 60)) % 60)).padStart(2, '0');
-                    const seconds = String(Math.floor((timeLeft / 1000) % 60)).padStart(2, '0');
-                    document.getElementById('bonus-timer').textContent = `${hours}:${minutes}:${seconds}`;
-                } else {
-                    dailyBonusClaimed = false;
-                    document.getElementById('bonus-timer').textContent = "00:00:00";
-                }
-            }
+        function updateStatus(message) {
+            document.getElementById('status').textContent = `Status: ${message}`;
         }
-
-        updateInterface();
-        setInterval(updateBonusTimer, 1000);
     </script>
 </body>
 </html>
